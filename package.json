@@ -1,0 +1,17 @@
+{
+  "name": "surxondaryo-yuridik-bot",
+  "version": "1.0.0",
+  "description": "Surxondaryo Yuridik Texnikumi — Rasmiy Telegram Bot (Humo AI)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.2.1",
+    "node-telegram-bot-api": "^0.66.0",
+    "qrcode": "^1.5.4"
+  }
+}

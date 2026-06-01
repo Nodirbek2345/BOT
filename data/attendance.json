@@ -1,0 +1,45 @@
+{
+  "groups": [
+    {
+      "id": "dhf-1-25",
+      "name": "📝 Davlat huquqiy faoliyat mutaxassisligi 1-kurs 1-25 guruhi",
+      "leaderId": 0,
+      "students": [
+        { "id": 1, "name": "Abdullayev A." },
+        { "id": 2, "name": "Berdiyev B." }
+      ]
+    },
+    {
+      "id": "dhf-2-25",
+      "name": "📝 Davlat huquqiy faoliyat mutaxassisligi 1-kurs 2-25 guruhi",
+      "leaderId": 0,
+      "students": [
+        { "id": 1, "name": "Qodirov Q." },
+        { "id": 2, "name": "Sobirov S." }
+      ]
+    },
+    {
+      "id": "yx-3-25",
+      "name": "📝 Yuridik xizmat mutaxassisligi 1-kurs 3-25 guruhi",
+      "leaderId": 0,
+      "students": [
+        { "id": 1, "name": "Aliyev V." },
+        { "id": 2, "name": "G'aniyev G'." }
+      ]
+    },
+    {
+      "id": "shf-4-25",
+      "name": "📝 Sud huquqiy faoliyat mutaxassisligi 1-kurs 4-25 guruhi",
+      "leaderId": 0,
+      "students": [
+        { "id": 1, "name": "Valiyev V." },
+        { "id": 2, "name": "Salimov S." }
+      ]
+    }
+  ],
+  "attendance": {},
+  "authorized_users": [
+    643432107,
+    1014957194
+  ]
+}

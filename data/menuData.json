@@ -1,0 +1,80 @@
+{
+  "admins": [
+    1014957194
+  ],
+  "mainMenu": [
+    {
+      "id": "btn_1",
+      "text": "📌 my.edu.uz qo'llanma",
+      "aiQuestion": "my.edu.uz saytida ro'yxatdan o'tish bo'yicha batafsil qo'llanma bering — har bir qadamni alohida tushuntiring"
+    },
+    {
+      "id": "btn_2",
+      "text": "✅ Shahodatnoma",
+      "aiQuestion": "Texnikumda o'qishni tugatgandan keyin shahodatnoma (diplom) olish jarayoni va talablari haqida ma'lumot bering"
+    },
+    {
+      "id": "btn_3",
+      "text": "💵 Kontrakt to'lov",
+      "aiQuestion": "Kontrakt to'lov miqdorlari, to'lov usullari (online va offline) va to'lov muddatlari haqida to'liq ma'lumot bering"
+    },
+    {
+      "id": "btn_4",
+      "text": "📱 Aloqa",
+      "aiQuestion": "Texnikumning barcha aloqa ma'lumotlari: telefon, email, manzil, telegram, ijtimoiy tarmoqlar"
+    },
+    {
+      "id": "btn_5",
+      "text": "🧠 Maslahatlar",
+      "aiQuestion": "Texnikumga qabul bo'lmoqchi bo'lgan abituriyentlarga eng muhim va foydali maslahatlar bering"
+    },
+    {
+      "id": "btn_6",
+      "text": "⚙️ Xizmatlar",
+      "aiQuestion": ""
+    }
+  ],
+  "servicesMenu": [
+    {
+      "id": "svc_1",
+      "text": "📄 Ta'lim yo'nalishlari",
+      "aiQuestion": "Texnikumdagi barcha ta'lim yo'nalishlari: nomlari, davomiyligi, kontrakt narxi va imkoniyatlar haqida to'liq ma'lumot"
+    },
+    {
+      "id": "svc_2",
+      "text": "🎓 Qabul 2026–2027",
+      "aiQuestion": "2026-2027 o'quv yili uchun qabul shartlari, muddatlari, test fanlari va zaruriy hujjatlar haqida batafsil"
+    },
+    {
+      "id": "svc_3",
+      "text": "📝 Qabul arizalari",
+      "aiQuestion": "Qabul uchun ariza topshirish tartibi: online va offline usullar, my.edu.uz orqali qanday ariza beriladi"
+    },
+    {
+      "id": "svc_4",
+      "text": "📱 Elektron kutubxona",
+      "aiQuestion": "Texnikumning elektron kutubxona ilovasi: qanday yuklab olish, qanday foydalanish va qanday resurslar mavjud"
+    },
+    {
+      "id": "svc_5",
+      "text": "📚 Kutubxona",
+      "aiQuestion": "Surxondaryo Yuridik Texnikumi kutubxonasi: manzil, ish vaqti, mavjud kitoblar fondi va foydalanish tartibi"
+    },
+    {
+      "id": "svc_6",
+      "text": "💳 Loyihalar",
+      "aiQuestion": "Texnikumning faol loyihalari, talabalar tashabbuslar, musobaqalar va ijtimoiy tadbirlar haqida"
+    },
+    {
+      "id": "svc_7",
+      "text": "📱 Aloqa",
+      "aiQuestion": "Yotoqxona narxlari, sharoitlari va stipendiya miqdorlari haqida batafsil ma'lumot bering"
+    },
+    {
+      "id": "svc_8",
+      "text": "🎁 Imtiyozlar",
+      "aiQuestion": "Qabul jarayonida qanday imtiyozlar mavjud va kimlar foydalanishi mumkin — to'liq ro'yxat bering"
+    }
+  ],
+  "nextId": 9
+}
