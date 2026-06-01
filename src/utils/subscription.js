@@ -45,7 +45,10 @@ async function checkSubscription(bot, userId, isConfirming = false) {
 }
 
 function getSubscriptionKeyboard() {
-    const inline_keyboard = C.SUBSCRIPTION_BUTTONS.map(btn => [{ text: btn.text, url: btn.url }]);
+    const inline_keyboard = C.CHANNELS.map(ch => {
+        const icon = ch.type === 'telegram' ? '📢' : ch.name === 'Instagram' ? '📸' : ch.name === 'YouTube' ? '▶️' : '🔗';
+        return [{ text: `${icon} ${ch.name}ga obuna bo'ling`, callback_data: `sub_click_${ch.name}` }];
+    });
     inline_keyboard.push([{ text: C.SUBSCRIPTION_CONFIRM_TEXT, callback_data: "check_subscription" }]);
     return { inline_keyboard };
 }

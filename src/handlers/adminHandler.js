@@ -591,6 +591,23 @@ async function sendStats(bot, chatId, messageId) {
   const answers = allBtns.filter(b => b.type === "answer").length;
   const admins = db.getAdmins();
   const userStats = db.getUserStats();
+  const channelStats = db.getChannelStats();
+
+  // Kanal statistikasi
+  const C = require("../config/content");
+  let channelLines = "\n📡 *Kanallar statistikasi:*\n";
+  if (Object.keys(channelStats).length === 0) {
+    channelLines += "_Hali klik yo'q_";
+  } else {
+    C.CHANNELS.forEach(ch => {
+      const stat = channelStats[ch.name];
+      if (stat) {
+        channelLines += `  • *${ch.name}:* ${stat.uniqueUsers.length} ta unikal klik\n`;
+      } else {
+        channelLines += `  • *${ch.name}:* 0 klik\n`;
+      }
+    });
+  }
 
   const text = [
     "📊 *BOT STATISTIKASI*\n",
@@ -601,6 +618,7 @@ async function sendStats(bot, chatId, messageId) {
     `📄 *Javob xabarlari jami:* ${answers}`,
     `👤 *Adminlar soni:* ${admins.length}`,
     `🆔 *Admin IDlar:* ${admins.join(", ")}`,
+    channelLines,
   ].join("\n");
 
   try {

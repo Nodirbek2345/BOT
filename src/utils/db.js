@@ -526,6 +526,23 @@ function getAllUsers() {
   return Object.keys(data.users || {});
 }
 
+// ── Kanal klik statistikasi ──────────────────────────────
+function trackChannelClick(userId, channelName) {
+  const data = loadData();
+  if (!data.channelStats) data.channelStats = {};
+  if (!data.channelStats[channelName]) data.channelStats[channelName] = { clicks: 0, uniqueUsers: [] };
+  data.channelStats[channelName].clicks++;
+  if (!data.channelStats[channelName].uniqueUsers.includes(String(userId))) {
+    data.channelStats[channelName].uniqueUsers.push(String(userId));
+  }
+  saveData(data);
+}
+
+function getChannelStats() {
+  const data = loadData();
+  return data.channelStats || {};
+}
+
 // ── Sozlamalar (Makroslar) ──────────────────────────────
 function getSetting(key, defaultValue = "") {
   const data = loadData();
@@ -546,6 +563,7 @@ module.exports = {
   getButtonsByParent, getAllButtons, findButtonByText, findButtonById,
   addButton, removeButton, editButton, moveButton, toggleButtonType,
   trackUser, setUserStatus, getUserStats, setUserSubscribed, isUserSubscribed, getAllUsers,
+  trackChannelClick, getChannelStats,
   getSetting, setSetting,
   backupAttendanceToTelegram
 };

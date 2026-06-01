@@ -24,6 +24,20 @@ function registerCallbackHandler(bot) {
     // Admin callbacklarini o'tkazib yuborish (adminHandler ushlaydi)
     if (data.startsWith("admin_")) return;
 
+    // ── Obuna tugmasini bosish (klik kuzatuvi + URL ochish) ──
+    if (data.startsWith("sub_click_")) {
+      const channelName = data.replace("sub_click_", "");
+      const C = require("../config/content");
+      const channel = C.CHANNELS.find(ch => ch.name === channelName);
+      db.trackChannelClick(chatId, channelName);
+      if (channel) {
+        await bot.answerCallbackQuery(query.id, { url: channel.url });
+      } else {
+        await bot.answerCallbackQuery(query.id);
+      }
+      return;
+    }
+
     if (data === "check_subscription") {
       const isSubscribed = await checkSubscription(bot, chatId, true);
       if (isSubscribed) {
