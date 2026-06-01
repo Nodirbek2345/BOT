@@ -521,6 +521,11 @@ function getUserStats() {
   return { total, activeCount, deletedCount: total - activeCount };
 }
 
+function getAllUsers() {
+  const data = loadData();
+  return Object.keys(data.users || {});
+}
+
 // ── Sozlamalar (Makroslar) ──────────────────────────────
 function getSetting(key, defaultValue = "") {
   const data = loadData();
@@ -540,7 +545,7 @@ module.exports = {
   isAdmin, addAdmin, removeAdmin, getAdmins,
   getButtonsByParent, getAllButtons, findButtonByText, findButtonById,
   addButton, removeButton, editButton, moveButton, toggleButtonType,
-  trackUser, setUserStatus, getUserStats, setUserSubscribed, isUserSubscribed,
+  trackUser, setUserStatus, getUserStats, setUserSubscribed, isUserSubscribed, getAllUsers,
   getSetting, setSetting,
   backupAttendanceToTelegram
 };

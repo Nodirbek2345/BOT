@@ -57,6 +57,14 @@ function registerAdminHandler(bot) {
       return sendFolderView(bot, chatId, "root", query.message.message_id);
     }
 
+    // ── ROOT PANEL ──
+    if (data === "admin_broadcast_ask") {
+      state.action = "broadcast_wait";
+      adminStates.set(chatId, state);
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
+      return bot.sendMessage(chatId, "📲 Barcha obunachilarga tarqatmoqchi bo'lgan xabaringizni yuboring (Matn, Rasm, Video yoki Fayl qabul qilinadi):", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
+    }
+
     // ── STATS & ADMINS ──
     if (data === "admin_stats") return sendStats(bot, chatId, query.message.message_id);
     if (data === "admin_admins") return sendAdminsMenu(bot, chatId, query.message.message_id);
@@ -382,6 +390,48 @@ function registerAdminHandler(bot) {
       const textResponse = added ? `✅ Yangi admin qo'shildi: ${newId}` : `⚠️ Allaqaqchon admin.`;
       return sendSuccess(bot, chatId, textResponse, "root");
     }
+
+    // ── XABAR TARQATISH (BROADCAST) ──
+    if (state.action === "broadcast_wait") {
+      state.action = null;
+      adminStates.set(chatId, state);
+
+      const users = db.getAllUsers();
+      bot.sendMessage(chatId, `⏳ Xabar tarqatish boshlandi... Jami: ${users.length} ta obunachiga.`);
+
+      let successCount = 0;
+      let blockCount = 0;
+
+      const broadcast = async () => {
+        for (const uid of users) {
+          try {
+            let opts = {};
+            if (msg.caption) opts.caption = msg.caption;
+
+            if (msg.photo) {
+              await bot.sendPhoto(uid, msg.photo[msg.photo.length - 1].file_id, opts);
+            } else if (msg.video) {
+              await bot.sendVideo(uid, msg.video.file_id, opts);
+            } else if (msg.document) {
+              await bot.sendDocument(uid, msg.document.file_id, opts);
+            } else {
+              await bot.sendMessage(uid, msg.text || "Xabar qabul qilinmadi.");
+            }
+            successCount++;
+          } catch (e) {
+            blockCount++;
+            if (e.response && e.response.statusCode === 403) {
+              db.setUserStatus(uid, false);
+            }
+          }
+          await new Promise(r => setTimeout(r, 50)); // Tebranish oldini olish
+        }
+        bot.sendMessage(chatId, `✅ Xabar yuborish tugallandi.\n\nYetib bordi: ${successCount}\nBloklaganlar: ${blockCount}`, { reply_markup: { inline_keyboard: [[{ text: "🔙 Panelga qaytish", callback_data: "admin_panel" }]] } });
+      };
+
+      broadcast();
+      return;
+    }
   });
 }
 
@@ -451,6 +501,7 @@ async function sendFolderView(bot, chatId, folderId, messageId) {
       { text: "👥 Barcha Adminlar", callback_data: "admin_admins" },
       { text: "📊 Statistika", callback_data: "admin_stats" }
     ]);
+    keyboard.push([{ text: "📨 Hammaga xabar tarqatish", callback_data: "admin_broadcast_ask" }]);
     keyboard.push([{ text: "⚙️ Umumiy Sozlamalar", callback_data: "admin_settings" }]);
     keyboard.push([{ text: "🚪 Admindan chiqish", callback_data: "admin_close" }]);
   }
