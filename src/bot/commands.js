@@ -25,12 +25,15 @@ function registerCommands(bot) {
     const name = msg.from.first_name || "Foydalanuvchi";
     logger.user(chatId, name, "/start buyrug'i");
 
+    const db = require("../utils/db");
+    db.setUserUnsubscribed(chatId); // Bot tozalanganda obunani boshidan so'rash uchun
+
     const isSubscribed = await checkSubscription(bot, chatId);
     if (!isSubscribed) {
-        await bot.sendMessage(chatId, C.SUBSCRIPTION_TEXT, {
-            reply_markup: getSubscriptionKeyboard()
-        });
-        return;
+      await bot.sendMessage(chatId, C.SUBSCRIPTION_TEXT, {
+        reply_markup: getSubscriptionKeyboard()
+      });
+      return;
     }
 
     // Agar obuna bo'lsa, to'g'ridan-to'g'ri Welcome xabarini yuboramiz
@@ -43,28 +46,28 @@ function registerCommands(bot) {
     const opts = { parse_mode: "HTML", reply_markup: buildKeyboard("root") };
 
     try {
-        if (rawContent.startsWith("MEDIA:")) {
-            const media = JSON.parse(rawContent.replace("MEDIA:", ""));
-            if (media.text) opts.caption = media.text;
+      if (rawContent.startsWith("MEDIA:")) {
+        const media = JSON.parse(rawContent.replace("MEDIA:", ""));
+        if (media.text) opts.caption = media.text;
 
-            try {
-                if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
-                else if (media.type === "video") await bot.sendVideo(chatId, media.file_id, opts);
-                else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
-            } catch(e) {
-                opts.parse_mode = undefined;
-                if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
-                else if (media.type === "video") await bot.sendVideo(chatId, media.file_id, opts);
-                else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
-            }
-        } else {
-            await bot.sendMessage(chatId, rawContent, opts);
+        try {
+          if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
+          else if (media.type === "video") await bot.sendVideo(chatId, media.file_id, opts);
+          else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
+        } catch (e) {
+          opts.parse_mode = undefined;
+          if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
+          else if (media.type === "video") await bot.sendVideo(chatId, media.file_id, opts);
+          else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
         }
+      } else {
+        await bot.sendMessage(chatId, rawContent, opts);
+      }
     } catch (err) {
-        if (!rawContent.startsWith("MEDIA:")) {
-            opts.parse_mode = undefined;
-            await bot.sendMessage(chatId, rawContent, opts);
-        }
+      if (!rawContent.startsWith("MEDIA:")) {
+        opts.parse_mode = undefined;
+        await bot.sendMessage(chatId, rawContent, opts);
+      }
     }
   });
 
@@ -75,8 +78,8 @@ function registerCommands(bot) {
 
     const isSubscribed = await checkSubscription(bot, chatId);
     if (!isSubscribed) {
-        await bot.sendMessage(chatId, C.SUBSCRIPTION_TEXT, { reply_markup: getSubscriptionKeyboard() });
-        return;
+      await bot.sendMessage(chatId, C.SUBSCRIPTION_TEXT, { reply_markup: getSubscriptionKeyboard() });
+      return;
     }
 
     bot.sendMessage(chatId, C.BOSH_MENYU_TEXT, {
@@ -120,7 +123,7 @@ function registerCommands(bot) {
 
     setUserState(chatId, 'qr_waiting');
     bot.sendMessage(chatId, "📎 *QR kod yaratish*\n\nIltimos, QR kodga aylantirmoqchi bo'lgan matn yoki havolani yuboring:", {
-        parse_mode: 'Markdown',
+      parse_mode: 'Markdown',
     });
   });
 
@@ -134,7 +137,7 @@ function registerCommands(bot) {
 
   // Bot buyruqlarini Telegram menyusiga ro'yxatdan o'tkazish
   bot.setMyCommands(C.BOT_COMMANDS);
-  
+
   // Bot ta'rifini o'rnatish (What can this bot do?)
   bot.setMyDescription(C.BOT_DESCRIPTION);
 

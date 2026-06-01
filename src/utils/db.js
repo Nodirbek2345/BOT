@@ -483,19 +483,25 @@ function trackUser(userId, first_name) {
   return null;
 }
 
-function setUserSubscribed(userId) {
+function setUserSubscribed(id) {
   const data = loadData();
-  data.users = data.users || {};
-  if (!data.users[userId]) {
-    data.users[userId] = { joinedAt: new Date().toISOString(), active: true };
-  }
-  data.users[userId].subscribed = true;
+  if (!data.users) data.users = {};
+  if (!data.users[id]) data.users[id] = { active: true };
+  data.users[id].subscribed = true;
   saveData(data);
 }
 
-function isUserSubscribed(userId) {
+function setUserUnsubscribed(id) {
   const data = loadData();
-  return data.users && data.users[userId] && data.users[userId].subscribed === true;
+  if (data.users && data.users[id]) {
+    data.users[id].subscribed = false;
+    saveData(data);
+  }
+}
+
+function isUserSubscribed(id) {
+  const data = loadData();
+  return data.users && data.users[id] && data.users[id].subscribed === true;
 }
 
 function setUserStatus(userId, active) {
@@ -562,7 +568,7 @@ module.exports = {
   isAdmin, addAdmin, removeAdmin, getAdmins,
   getButtonsByParent, getAllButtons, findButtonByText, findButtonById,
   addButton, removeButton, editButton, moveButton, toggleButtonType,
-  trackUser, setUserStatus, getUserStats, setUserSubscribed, isUserSubscribed, getAllUsers,
+  trackUser, setUserStatus, getUserStats, setUserSubscribed, setUserUnsubscribed, isUserSubscribed, getAllUsers,
   trackChannelClick, getChannelStats,
   getSetting, setSetting,
   backupAttendanceToTelegram
