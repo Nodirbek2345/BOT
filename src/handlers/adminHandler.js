@@ -136,6 +136,14 @@ function registerAdminHandler(bot) {
       try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, "🤖 Yangi javobni yozing (matn, rasm yoki video jo'natishingiz mumkin):", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
+    if (data.startsWith("admin_editcaption_")) {
+      const btnId = data.replace("admin_editcaption_", "");
+      state.action = "edit_caption_only";
+      state.buttonId = btnId;
+      adminStates.set(chatId, state);
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
+      return bot.sendMessage(chatId, "💬 Faylning yangi tegso'z (Caption) matnini yuboring:", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
+    }
 
     // ── SOZLAMALAR TAHRIRI ──
     if (data === "admin_edit_welcome") {
@@ -304,6 +312,19 @@ function registerAdminHandler(bot) {
       adminStates.set(chatId, state);
       return sendSuccess(bot, chatId, `✅ Javob muvaffaqiyatli o'zgartirildi!`, state.currentFolder);
     }
+    if (state.action === "edit_caption_only" && text) {
+      const btn = db.findButtonById(state.buttonId);
+      if (btn && btn.content && btn.content.startsWith("MEDIA:")) {
+        try {
+          const m = JSON.parse(btn.content.replace("MEDIA:", ""));
+          m.text = text;
+          db.editButton(state.buttonId, undefined, "MEDIA:" + JSON.stringify(m));
+        } catch (e) { }
+      }
+      state.action = null;
+      adminStates.set(chatId, state);
+      return sendSuccess(bot, chatId, `✅ Tag-so'z muvaffaqiyatli o'zgartirildi! (Fayl joyida qoldi)`, state.currentFolder);
+    }
 
     // ── SOZLAMALAR ──
     if (state.action === "edit_welcome") {
@@ -448,7 +469,8 @@ async function sendButtonManage(bot, chatId, btnId, messageId) {
 
   const isMenu = btn.type === "menu";
   const safeContent = btn.content || "";
-  let contentDisplay = safeContent.startsWith("MEDIA:") ? "(MEDIA fayl saqlangan - rasm yoki video)" : safeContent.substring(0, 100);
+  const isMedia = safeContent.startsWith("MEDIA:");
+  let contentDisplay = isMedia ? "(MEDIA fayl saqlangan - rasm yoki video)" : safeContent.substring(0, 100);
   let text = `⚙️ **Tugma boshqaruvi**\n\nNomi: ${btn.text}\nTuri: ${isMenu ? "📁 Papka" : "📄 Javob matni"}\n\nJavobi (yoki sarlavhasi):\n_${contentDisplay || "(bo'sh)"}..._`;
 
   const keyboard = [];
@@ -461,10 +483,21 @@ async function sendButtonManage(bot, chatId, btnId, messageId) {
     callback_data: `admin_toggletype_${btn.id}`
   }]);
 
-  keyboard.push([
-    { text: "✏️ Nomni o'zgartirish", callback_data: `admin_editname_${btn.id}` },
-    { text: "📝 Matnni o'zgartirish", callback_data: `admin_editcontent_${btn.id}` }
-  ]);
+  if (isMedia) {
+    keyboard.push([
+      { text: "✏️ Nomni o'zgartirish", callback_data: `admin_editname_${btn.id}` },
+      { text: "💬 Tag-so'zni (Caption) tahrirlash", callback_data: `admin_editcaption_${btn.id}` }
+    ]);
+    keyboard.push([
+      { text: "🔄 Faylni to'liq almashtirish", callback_data: `admin_editcontent_${btn.id}` }
+    ]);
+  } else {
+    keyboard.push([
+      { text: "✏️ Nomni o'zgartirish", callback_data: `admin_editname_${btn.id}` },
+      { text: "📝 Matn yoki Fayl o'zgartirish", callback_data: `admin_editcontent_${btn.id}` }
+    ]);
+  }
+
   keyboard.push([
     { text: "🚚 Boshqa papkaga ko'chirish", callback_data: `admin_move_${btn.id}` }
   ]);

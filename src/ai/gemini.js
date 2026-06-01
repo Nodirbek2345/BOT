@@ -5,10 +5,10 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const config = require("../config");
 const SYSTEM_PROMPT = require("./prompt");
+const db = require("../utils/db");
 const logger = require("../utils/logger");
 
 let genAI = null;
-let model = null;
 
 /**
  * Gemini modelini ishga tushirish
@@ -19,10 +19,6 @@ function initGemini() {
     return false;
   }
   genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
-  model = genAI.getGenerativeModel({
-    model: config.GEMINI_MODEL,
-    systemInstruction: SYSTEM_PROMPT,
-  });
   logger.info(`Gemini model: ${config.GEMINI_MODEL} — tayyor ✓`);
   return true;
 }
@@ -34,12 +30,41 @@ function initGemini() {
  * @returns {string} AI javobi
  */
 async function askGemini(history, userMessage) {
-  if (!model) {
+  if (!genAI) {
     return "⚠️ AI xizmati hozirda ishlamayapti. Iltimos keyinroq urinib ko'ring.";
   }
 
   try {
-    const chat = model.startChat({
+    // 1. Dinamik ma'lumotlarni yig'ish
+    const allBtns = db.getAllButtons() || [];
+    let dynamicContext = "\n\nQUYIDAGI MA'LUMOTLAR BOTNING JORIY BAZASIDAN OLINDI VA FAQAT SHU BILIMLAR ASOSIDA JAVOB BERING:\n";
+    let hasData = false;
+
+    allBtns.forEach(b => {
+      if (b.type === 'answer' && b.content) {
+        let contentText = b.content;
+        if (b.content.startsWith("MEDIA:")) {
+          try {
+            const m = JSON.parse(b.content.replace("MEDIA:", ""));
+            contentText = m.text || "";
+          } catch (e) { }
+        }
+        if (contentText.trim() && contentText !== "Ma'lumot kiritilmagan") {
+          dynamicContext += `• Mavzu: "${b.text}" -> Ma'lumot: ${contentText.trim()}\n`;
+          hasData = true;
+        }
+      }
+    });
+
+    const finalInstruction = hasData ? SYSTEM_PROMPT + dynamicContext : SYSTEM_PROMPT;
+
+    // 2. Modelni eng so'nggi bilimlar bilan qayta shakllantirish
+    const currentModel = genAI.getGenerativeModel({
+      model: config.GEMINI_MODEL,
+      systemInstruction: finalInstruction,
+    });
+
+    const chat = currentModel.startChat({
       history: history,
       generationConfig: {
         maxOutputTokens: config.MAX_TOKENS,
