@@ -471,6 +471,21 @@ function trackUser(userId, first_name) {
   return null;
 }
 
+function setUserSubscribed(userId) {
+  const data = loadData();
+  data.users = data.users || {};
+  if (!data.users[userId]) {
+    data.users[userId] = { joinedAt: new Date().toISOString(), active: true };
+  }
+  data.users[userId].subscribed = true;
+  saveData(data);
+}
+
+function isUserSubscribed(userId) {
+  const data = loadData();
+  return data.users && data.users[userId] && data.users[userId].subscribed === true;
+}
+
 function setUserStatus(userId, active) {
   const data = loadData();
   data.users = data.users || {};
@@ -513,7 +528,7 @@ module.exports = {
   isAdmin, addAdmin, removeAdmin, getAdmins,
   getButtonsByParent, getAllButtons, findButtonByText, findButtonById,
   addButton, removeButton, editButton, moveButton,
-  trackUser, setUserStatus, getUserStats,
+  trackUser, setUserStatus, getUserStats, setUserSubscribed, isUserSubscribed,
   getSetting, setSetting,
   backupAttendanceToTelegram
 };

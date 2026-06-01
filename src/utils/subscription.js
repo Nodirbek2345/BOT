@@ -3,12 +3,12 @@
 //  ⚠️ Matnlarni o'zgartirish uchun: src/config/content.js
 // ═══════════════════════════════════════════════════════
 const C = require("../config/content");
+const db = require("./db"); // O'zgarishlar doimiy bo'lishi uchun db
 
-const subCache = new Set();
 const failCache = new Map(); // Anti-spam uchun
 
 async function checkSubscription(bot, userId, isConfirming = false) {
-    if (subCache.has(userId)) return true;
+    if (db.isUserSubscribed(userId)) return true;
 
     // Agar oxirgi 10 soniyada tekshirilgan va obuna bo'lmagan bo'lsa, API ga so'rov yubormaslik (tepadan tezkor false qaytarish)
     if (!isConfirming && failCache.has(userId)) {
@@ -30,7 +30,7 @@ async function checkSubscription(bot, userId, isConfirming = false) {
                 // Agar botni kanalga admin qilinmagan bo'lsa (400 xatolik borsa),
                 if (error.message.includes('400')) {
                     if (isConfirming) {
-                        subCache.add(userId);
+                        db.setUserSubscribed(userId);
                         return true;
                     }
                 }
@@ -40,7 +40,7 @@ async function checkSubscription(bot, userId, isConfirming = false) {
         }
     }
 
-    subCache.add(userId);
+    db.setUserSubscribed(userId);
     return true;
 }
 
