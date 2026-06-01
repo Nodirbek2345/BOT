@@ -26,7 +26,8 @@ function registerMessageHandler(bot) {
         const userText = msg.text.trim();
 
         // ── Admin state tekshiruvi ──
-        if (adminStates.has(chatId) && db.isAdmin(userId)) {
+        const adminState = adminStates.get(chatId);
+        if (adminState && adminState.action && db.isAdmin(userId)) {
             return;
         }
 
