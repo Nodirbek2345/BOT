@@ -130,27 +130,36 @@ function registerAdminHandler(bot) {
     // ── NOM/JAVOB TAHRIRLASH ──
     if (data.startsWith("admin_editname_")) {
       const btnId = data.replace("admin_editname_", "");
+      const btn = db.findButtonById(btnId);
       state.action = "edit_name";
       state.buttonId = btnId;
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
-      return bot.sendMessage(chatId, "✏️ Yangi tugma nomini yozing (emoji bilan):", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
+      return bot.sendMessage(chatId, `✏️ *"${btn ? btn.text : ""}"* uchun yangi nomni yozing:`, {
+        parse_mode: "Markdown",
+        reply_markup: { force_reply: true, selective: true, input_field_placeholder: "Yangi nom..." }
+      });
     }
     if (data.startsWith("admin_editcontent_")) {
       const btnId = data.replace("admin_editcontent_", "");
+      const btn = db.findButtonById(btnId);
       state.action = "edit_content";
       state.buttonId = btnId;
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
-      return bot.sendMessage(chatId, "🤖 Yangi javobni yozing (matn, rasm yoki video jo'natishingiz mumkin):", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
+      return bot.sendMessage(chatId, `📝 *"${btn ? btn.text : ""}"* uchun yangi matn yoki fayl yuboring:`, {
+        parse_mode: "Markdown",
+        reply_markup: { force_reply: true, selective: true, input_field_placeholder: "Yangi matn..." }
+      });
     }
     if (data.startsWith("admin_editcaption_")) {
       const btnId = data.replace("admin_editcaption_", "");
+      const btn = db.findButtonById(btnId);
       state.action = "edit_caption_only";
       state.buttonId = btnId;
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
-      return bot.sendMessage(chatId, "💬 Faylning yangi tegso'z (Caption) matnini yuboring:", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
+      return bot.sendMessage(chatId, `💬 *"${btn ? btn.text : ""}"* faylining yangi tag-so'zini yozing:`, {
+        parse_mode: "Markdown",
+        reply_markup: { force_reply: true, selective: true, input_field_placeholder: "Yangi caption..." }
+      });
     }
 
     // ── SOZLAMALAR TAHRIRI ──
@@ -521,8 +530,22 @@ async function sendButtonManage(bot, chatId, btnId, messageId) {
   const isMenu = btn.type === "menu";
   const safeContent = btn.content || "";
   const isMedia = safeContent.startsWith("MEDIA:");
-  let contentDisplay = isMedia ? "(MEDIA fayl saqlangan - rasm yoki video)" : safeContent.substring(0, 100);
-  let text = `⚙️ **Tugma boshqaruvi**\n\nNomi: ${btn.text}\nTuri: ${isMenu ? "📁 Papka" : "📄 Javob matni"}\n\nJavobi (yoki sarlavhasi):\n_${contentDisplay || "(bo'sh)"}..._`;
+
+  // Hozirgi to'liq matnni ko'rsatish
+  let currentText = "";
+  if (isMedia) {
+    try {
+      const m = JSON.parse(safeContent.replace("MEDIA:", ""));
+      currentText = m.text || "(bo'sh)";
+    } catch (e) { currentText = "(bo'sh)"; }
+  } else {
+    currentText = safeContent || "(bo'sh)";
+  }
+
+  // Matni 300 belgidan oshsa, qisqartirish (Telegram limit)
+  const displayText = currentText.length > 300 ? currentText.substring(0, 300) + "..." : currentText;
+
+  let text = `⚙️ **Tugma boshqaruvi**\n\n📌 Nomi: *${btn.text}*\n📂 Turi: ${isMenu ? "📁 Papka" : "📄 Javob matni"}\n\n📝 *Joriy matn:*\n\`\`\`\n${isMedia ? displayText : displayText}\n\`\`\``;
 
   const keyboard = [];
   if (isMenu) {
