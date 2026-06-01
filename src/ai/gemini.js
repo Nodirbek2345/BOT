@@ -91,7 +91,7 @@ async function askGemini(history, userMessage) {
       return "⚠️ Xavfsizlik filtri. Iltimos savolingizni boshqacha ifodalang.";
     }
 
-    return "⚠️ Texnik xatolik yuz berdi. Iltimos qaytadan urinib ko'ring yoki +998 76 223-45-67 ga qo'ng'iroq qiling.";
+    return "⚠️ Texnik xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.";
   }
 }
 

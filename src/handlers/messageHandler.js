@@ -114,8 +114,11 @@ function registerMessageHandler(bot) {
         }
 
         // ── AI bilan gaplashish holati (Avtomatik fallback) ──
-        // Agar yuqoridagi hech qaysi tugma yoki buyruqqa tushmasa, 
-        // foydalanuvchi yozgan har qanday matnni AI ga beramiz!
+        // Agar foydalanuvchi "ask_ai" holatida bo'lmasa, matnni AI ga bermaslik
+        if (userStates.get(chatId) !== "ask_ai") {
+            await bot.sendMessage(chatId, "❗ Iltimos, AI ga savol berishdan oldin menyudan *«✏️ Savolim bor»* tugmasini bosing.", { parse_mode: "Markdown" });
+            return;
+        }
 
         await bot.sendChatAction(chatId, "typing");
         const history = getHistory(chatId);
