@@ -40,7 +40,9 @@ function registerCallbackHandler(bot) {
         try {
           if (rawContent.startsWith("MEDIA:")) {
             const media = JSON.parse(rawContent.replace("MEDIA:", ""));
-            if (media.text) opts.caption = media.text;
+            if (media.text) {
+              opts.caption = media.text + "\n\n";
+            }
 
             try {
               if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
@@ -53,7 +55,7 @@ function registerCallbackHandler(bot) {
               else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
             }
           } else {
-            await bot.sendMessage(chatId, rawContent, opts);
+            await bot.sendMessage(chatId, rawContent + "\n\n", opts);
           }
         } catch (err) {
           if (!rawContent.startsWith("MEDIA:")) {

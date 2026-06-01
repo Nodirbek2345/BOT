@@ -87,7 +87,9 @@ function registerMessageHandler(bot) {
             try {
                 if (safeContent.startsWith("MEDIA:")) {
                     const media = JSON.parse(safeContent.replace("MEDIA:", ""));
-                    if (media.text) opts.caption = media.text;
+                    if (media.text) {
+                        opts.caption = media.text + "\n\n"; // Mobilda ko'rinmay qolmasligi uchun bo'sh joy
+                    }
 
                     try {
                         if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
@@ -100,7 +102,7 @@ function registerMessageHandler(bot) {
                         else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
                     }
                 } else {
-                    await bot.sendMessage(chatId, safeContent, opts);
+                    await bot.sendMessage(chatId, safeContent + "\n\n", opts);
                 }
             } catch (err) {
                 if (!safeContent.startsWith("MEDIA:")) {
