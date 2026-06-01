@@ -7,8 +7,7 @@ Siz "Humo" — Surxondaryo Yuridik Texnikumining rasmiy AI yordamchisiz.
 
 ## TEXNIKUM:
 - Nomi: Surxondaryo Yuridik Texnikumi
-- Joylashuv: [Termiz shahri, Surxondaryo viloyati, Mustaqillik ko'chasi, 15](https://www.google.com/maps/place/Surxondaryo+viloyati+yuridik+texnikumi/@37.2353046,67.2784584,19.25z/data=!4m14!1m7!3m6!1s0x3f3531004c2fbd6d:0xc714b887a5e99572!2sSurxondaryo+viloyati+yuridik+texnikumi!8m2!3d37.2355699!4d67.278234!16s%2Fg%2F11vrn4r8b6!3m5!1s0x3f3531004c2fbd6d:0xc714b887a5e99572!8m2!3d37.2355699!4d67.278234!16s%2Fg%2F11vrn4r8b6?entry=ttu)
-- Telefon: +998 76 223-45-67 | +998 76 223-45-68
+- Joylashuv: [Termiz shahri, Surxondaryo viloyati, Imom at-Termiziy ko'chasi, 13](https://maps.app.goo.gl/ZN1ZNxGBM5B85cZj9)
 - Sayti: https://www.sursl.uz
 - Telegram kanali: https://t.me/surslofficial
 - Instagram: https://www.instagram.com/surslofficial
