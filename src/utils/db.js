@@ -428,6 +428,18 @@ function editButton(buttonId, newText, newContent) {
   return found;
 }
 
+// Tugma turini o'zgartirish (Javob <-> Papka)
+function toggleButtonType(buttonId) {
+  const data = loadData();
+  const found = data.buttons.find(b => b.id === buttonId);
+  if (found) {
+    found.type = found.type === "menu" ? "answer" : "menu";
+    saveData(data);
+    return found;
+  }
+  return null;
+}
+
 // Tugmani boshqa papkaga ko'chirish
 function moveButton(buttonId, newParentId) {
   const data = loadData();
@@ -527,7 +539,7 @@ module.exports = {
   loadData, saveData,
   isAdmin, addAdmin, removeAdmin, getAdmins,
   getButtonsByParent, getAllButtons, findButtonByText, findButtonById,
-  addButton, removeButton, editButton, moveButton,
+  addButton, removeButton, editButton, moveButton, toggleButtonType,
   trackUser, setUserStatus, getUserStats, setUserSubscribed, isUserSubscribed,
   getSetting, setSetting,
   backupAttendanceToTelegram

@@ -12,7 +12,7 @@ function registerAdminHandler(bot) {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
     if (!db.isAdmin(userId)) return bot.sendMessage(chatId, "🚫 Sizda admin huquqi yo'q.");
-    
+
     logger.info(`🔑 Admin panel ochildi: ${msg.from.first_name} [${userId}]`);
     adminStates.set(chatId, { currentFolder: "root" });
     return sendFolderView(bot, chatId, "root");
@@ -35,13 +35,13 @@ function registerAdminHandler(bot) {
       state.buttonId = null;
       state.tempName = null;
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return sendFolderView(bot, chatId, state.currentFolder);
     }
 
     if (data === "admin_close") {
       adminStates.delete(chatId);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, "✅ Admin paneldan chiqildi. Oddiy xizmatlardan foydalanishingiz mumkin.", { reply_markup: require("../bot/keyboards").buildKeyboard("root") });
     }
 
@@ -63,7 +63,7 @@ function registerAdminHandler(bot) {
     if (data === "admin_add_admin") {
       state.action = "add_admin";
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, "👤 Yangi admin Telegram ID sini yozing:\n\nFoydalanuvchining ID sini olish uchun @userinfobot ga yuboring.", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
     if (data.startsWith("admin_rmadmin_")) {
@@ -77,13 +77,13 @@ function registerAdminHandler(bot) {
     if (data === "admin_add_answer") {
       state.action = "add_answer_name";
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, `ℹ️ Menyu qutisi ichiga yangi **Javob** matni qo'shyapmiz.\n\nTugma nomini yozing (emoji bilan):`, { parse_mode: "Markdown", reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
     if (data === "admin_add_menu") {
       state.action = "add_menu_name";
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, `📁 Yangi **Papka (Ichki menyu)** qo'shyapmiz.\n\nPapka nomini (klaviaturadagi yozuvni) yozing:`, { parse_mode: "Markdown", reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
 
@@ -108,14 +108,24 @@ function registerAdminHandler(bot) {
       const btnId = data.replace("admin_editbtn_", "");
       return sendButtonManage(bot, chatId, btnId, query.message.message_id);
     }
-    
+
+    // ── TUGMA TURINI O'ZGARTIRISH ──
+    if (data.startsWith("admin_toggletype_")) {
+      const btnId = data.replace("admin_toggletype_", "");
+      const updatedBtn = db.toggleButtonType(btnId);
+      if (updatedBtn) {
+        try { await bot.answerCallbackQuery(query.id, { text: "Tugma tag-turi o'zgartirildi!" }); } catch (e) { }
+        return sendButtonManage(bot, chatId, btnId, query.message.message_id);
+      }
+    }
+
     // ── NOM/JAVOB TAHRIRLASH ──
     if (data.startsWith("admin_editname_")) {
       const btnId = data.replace("admin_editname_", "");
       state.action = "edit_name";
       state.buttonId = btnId;
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, "✏️ Yangi tugma nomini yozing (emoji bilan):", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
     if (data.startsWith("admin_editcontent_")) {
@@ -123,7 +133,7 @@ function registerAdminHandler(bot) {
       state.action = "edit_content";
       state.buttonId = btnId;
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, "🤖 Yangi javobni yozing (matn, rasm yoki video jo'natishingiz mumkin):", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
 
@@ -131,19 +141,19 @@ function registerAdminHandler(bot) {
     if (data === "admin_edit_welcome") {
       state.action = "edit_welcome";
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, "✍️ Yangi xush kelibsiz (Bosh) xabarini yozing.\n\nFoydalanuvchi ismini chiqarish uchun `{name}` deb yozing.\n\n(Matn, rasm yoki video yuborishingiz mumkin):", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
     if (data === "admin_edit_botname") {
       state.action = "edit_botname";
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, "🤖 Botning yangi ismini yozing (Masalan: Surxondaryo yuridik texnikumi):", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
     if (data === "admin_edit_botbio") {
       state.action = "edit_botbio";
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return bot.sendMessage(chatId, "ℹ️ Botning qisqacha tavsifini (Bio) yozing:", { reply_markup: { inline_keyboard: [[{ text: "❌ Bekor qilish", callback_data: "admin_cancel" }]] } });
     }
 
@@ -157,12 +167,14 @@ function registerAdminHandler(bot) {
         adminStates.set(chatId, state);
         return bot.editMessageText(
           `🗑 *"${btn.text}"* ni haqiqatdan ham o'chirmoqchimisiz?\n\n(Agar bu papka bo'lsa ichidagi hamma narsa o'chib ketadi!)`,
-          { chat_id: chatId, message_id: query.message.message_id, parse_mode: "Markdown", reply_markup: {
-            inline_keyboard: [
-              [{ text: "✅ Ha, o'chirish", callback_data: `admin_confirm_del_${btnId}` }],
-              [{ text: "❌ Bekor qilish", callback_data: `admin_open_${state.currentFolder}` }]
-            ]
-          }}
+          {
+            chat_id: chatId, message_id: query.message.message_id, parse_mode: "Markdown", reply_markup: {
+              inline_keyboard: [
+                [{ text: "✅ Ha, o'chirish", callback_data: `admin_confirm_del_${btnId}` }],
+                [{ text: "❌ Bekor qilish", callback_data: `admin_open_${state.currentFolder}` }]
+              ]
+            }
+          }
         );
       }
     }
@@ -171,7 +183,7 @@ function registerAdminHandler(bot) {
       db.removeButton(btnId);
       state.action = null;
       adminStates.set(chatId, state);
-      try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
+      try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
       return sendSuccess(bot, chatId, "🗑 Tugma muvaffaqiyatli o'chirildi!", state.currentFolder);
     }
 
@@ -186,56 +198,56 @@ function registerAdminHandler(bot) {
 
       let text = `🚚 *"${btnToMove.text}"* ni qaysi papkaga ko'chirmoqchisiz?`;
       const keyboard = [];
-      
+
       // Root opsiyasi
       if (btnToMove.parentId !== "root") {
-         keyboard.push([{ text: "🏠 Bosh menyuga (Root)", callback_data: `admin_cfm_move_${btnId}::root` }]);
+        keyboard.push([{ text: "🏠 Bosh menyuga (Root)", callback_data: `admin_cfm_move_${btnId}::root` }]);
       }
-      
+
       allMenus.forEach(m => {
         if (btnToMove.parentId !== m.id) {
-           keyboard.push([{ text: `📁 ${m.text}`, callback_data: `admin_cfm_move_${btnId}::${m.id}` }]);
+          keyboard.push([{ text: `📁 ${m.text}`, callback_data: `admin_cfm_move_${btnId}::${m.id}` }]);
         }
       });
       keyboard.push([{ text: "❌ Bekor qilish", callback_data: `admin_editbtn_${btnId}` }]);
 
       try {
         await bot.editMessageText(text, { chat_id: chatId, message_id: query.message.message_id, parse_mode: "Markdown", reply_markup: { inline_keyboard: keyboard } });
-      } catch(e){}
+      } catch (e) { }
       return;
     }
 
     if (data.startsWith("admin_cfm_move_")) {
-       const payload = data.replace("admin_cfm_move_", "");
-       const sepIdx = payload.indexOf("::");
-       if (sepIdx === -1) return;
-       const btnId = payload.substring(0, sepIdx);
-       const newParentId = payload.substring(sepIdx + 2);
-       
-       const btn = db.findButtonById(btnId);
-       if (btn) {
-          const moved = db.moveButton(btnId, newParentId);
-          if (moved) {
-             try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
-             const parentBtn = db.findButtonById(newParentId);
-             const parentName = parentBtn ? parentBtn.text : "🏠 BOSH MENYU";
-             return sendSuccess(bot, chatId, `🚚 Yangi joyga ko'chirildi: *${parentName}*`, newParentId);
-          }
-       }
+      const payload = data.replace("admin_cfm_move_", "");
+      const sepIdx = payload.indexOf("::");
+      if (sepIdx === -1) return;
+      const btnId = payload.substring(0, sepIdx);
+      const newParentId = payload.substring(sepIdx + 2);
+
+      const btn = db.findButtonById(btnId);
+      if (btn) {
+        const moved = db.moveButton(btnId, newParentId);
+        if (moved) {
+          try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
+          const parentBtn = db.findButtonById(newParentId);
+          const parentName = parentBtn ? parentBtn.text : "🏠 BOSH MENYU";
+          return sendSuccess(bot, chatId, `🚚 Yangi joyga ko'chirildi: *${parentName}*`, newParentId);
+        }
+      }
     }
   });
 
   bot.on("message", async (msg) => {
     // Media faylni o'qiy olish uchun faqat `/` ni tekshiramiz
     if (msg.text && msg.text.startsWith("/")) return;
-    
+
     const chatId = msg.chat.id;
     const userId = msg.from.id;
     const state = adminStates.get(chatId);
     if (!state || !db.isAdmin(userId) || !state.action) return;
 
     let text = msg.text ? msg.text.trim() : (msg.caption ? msg.caption.trim() : "");
-    
+
     function encodeMedia(m) {
       let obj = { type: "text", text: m.text || m.caption || "" };
       if (m.photo) { obj.type = "photo"; obj.file_id = m.photo[m.photo.length - 1].file_id; }
@@ -304,7 +316,7 @@ function registerAdminHandler(bot) {
     }
     if (state.action === "edit_botname") {
       if (!text) return bot.sendMessage(chatId, "⚠️ Ism bo'sh bo'lishi mumkin emas!");
-      
+
       try {
         await fetch(`https://api.telegram.org/bot${bot.token}/setMyName`, {
           method: "POST",
@@ -322,7 +334,7 @@ function registerAdminHandler(bot) {
     }
     if (state.action === "edit_botbio") {
       if (!text) return bot.sendMessage(chatId, "⚠️ Bio bo'sh bo'lishi mumkin emas!");
-      
+
       try {
         await fetch(`https://api.telegram.org/bot${bot.token}/setMyShortDescription`, {
           method: "POST",
@@ -357,9 +369,9 @@ function registerAdminHandler(bot) {
 async function sendSuccess(bot, chatId, text, currentFolder) {
   const keyboard = [];
   if (currentFolder === "settings") {
-      keyboard.push([{ text: "⚙️ Sozlamalarga qaytish", callback_data: `admin_settings` }]);
+    keyboard.push([{ text: "⚙️ Sozlamalarga qaytish", callback_data: `admin_settings` }]);
   } else {
-      keyboard.push([{ text: "📁 Yana davom etish", callback_data: `admin_open_${currentFolder}` }]);
+    keyboard.push([{ text: "📁 Yana davom etish", callback_data: `admin_open_${currentFolder}` }]);
   }
   keyboard.push([{ text: "🚪 Admindan chiqish", callback_data: "admin_close" }]);
 
@@ -373,7 +385,7 @@ async function sendSuccess(bot, chatId, text, currentFolder) {
 
 async function sendSettingsView(bot, chatId, messageId) {
   const text = `⚙️ **UMUMIY SOZLAMALAR**\n\nBu yerdan botning asosiy ma'lumotlarini (ism, profil tavsifi, xush kelibsiz matni) to'g'ridan-to'g'ri Telegram bazasida o'zgartirishingiz mumkin.`;
-  
+
   const keyboard = [
     [{ text: "✏️ Bot ismini o'zgartirish", callback_data: "admin_edit_botname" }],
     [{ text: "ℹ️ Bot qisqacha tavsifini (Bio) o'zgartirish", callback_data: "admin_edit_botbio" }],
@@ -387,7 +399,7 @@ async function sendSettingsView(bot, chatId, messageId) {
     } else {
       await bot.sendMessage(chatId, text, { parse_mode: "Markdown", reply_markup: { inline_keyboard: keyboard } });
     }
-  } catch(e) {}
+  } catch (e) { }
 }
 
 async function sendFolderView(bot, chatId, folderId, messageId) {
@@ -398,7 +410,7 @@ async function sendFolderView(bot, chatId, folderId, messageId) {
   let text = `📂 **Hozirgi joy:** ${folderName}\n\nO'zgartirish kiritmoqchi bo'lgan qismini tanlang:\n`;
 
   const keyboard = [];
-  
+
   // Qutidagi mavjud narsalar (list)
   buttons.forEach(b => {
     const icon = b.type === "menu" ? "📁" : "📄";
@@ -424,7 +436,7 @@ async function sendFolderView(bot, chatId, folderId, messageId) {
 
   const options = { parse_mode: "Markdown", reply_markup: { inline_keyboard: keyboard } };
   if (messageId) {
-    try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...options }); } catch(e) {}
+    try { await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...options }); } catch (e) { }
   } else {
     await bot.sendMessage(chatId, text, options);
   }
@@ -443,6 +455,12 @@ async function sendButtonManage(bot, chatId, btnId, messageId) {
   if (isMenu) {
     keyboard.push([{ text: "📂 Ichkarisiga kirib boshqarish", callback_data: `admin_open_${btn.id}` }]);
   }
+
+  keyboard.push([{
+    text: isMenu ? "📄 Turi: Papkaga emas, Javobga o'tkazish" : "📁 Turi: Javob emas, Papkaga o'tkazish",
+    callback_data: `admin_toggletype_${btn.id}`
+  }]);
+
   keyboard.push([
     { text: "✏️ Nomni o'zgartirish", callback_data: `admin_editname_${btn.id}` },
     { text: "📝 Matnni o'zgartirish", callback_data: `admin_editcontent_${btn.id}` }
@@ -457,7 +475,7 @@ async function sendButtonManage(bot, chatId, btnId, messageId) {
 
   try {
     await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, parse_mode: "Markdown", reply_markup: { inline_keyboard: keyboard } });
-  } catch(e) {}
+  } catch (e) { }
 }
 
 async function sendStats(bot, chatId, messageId) {
@@ -466,7 +484,7 @@ async function sendStats(bot, chatId, messageId) {
   const answers = allBtns.filter(b => b.type === "answer").length;
   const admins = db.getAdmins();
   const userStats = db.getUserStats();
-  
+
   const text = [
     "📊 *BOT STATISTIKASI*\n",
     `👥 *Foydalanuvchilar:* ${userStats.total}`,
@@ -479,8 +497,8 @@ async function sendStats(bot, chatId, messageId) {
   ].join("\n");
 
   try {
-    await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, parse_mode: "Markdown", reply_markup: { inline_keyboard: [[{ text: "🔙 Panelga qaytish", callback_data: "admin_panel" }]] }});
-  } catch(e) {}
+    await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, parse_mode: "Markdown", reply_markup: { inline_keyboard: [[{ text: "🔙 Panelga qaytish", callback_data: "admin_panel" }]] } });
+  } catch (e) { }
 }
 
 async function sendAdminsMenu(bot, chatId, messageId) {
@@ -493,7 +511,7 @@ async function sendAdminsMenu(bot, chatId, messageId) {
 
   try {
     await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, parse_mode: "Markdown", reply_markup: { inline_keyboard: buttons } });
-  } catch(e) {}
+  } catch (e) { }
 }
 
 module.exports = { registerAdminHandler, adminStates };
