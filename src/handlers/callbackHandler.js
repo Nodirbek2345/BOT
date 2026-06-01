@@ -25,55 +25,55 @@ function registerCallbackHandler(bot) {
     if (data.startsWith("admin_")) return;
 
     if (data === "check_subscription") {
-        const isSubscribed = await checkSubscription(bot, chatId);
-        if (isSubscribed) {
-            try { await bot.deleteMessage(chatId, query.message.message_id); } catch(e){}
-            await bot.sendMessage(chatId, C.SUBSCRIPTION_SUCCESS);
-            
-            const savedWelcome = db.getSetting("welcome_text");
-            const defaultWelcome = C.WELCOME_TEXT.join("\n");
-            let rawContent = savedWelcome || defaultWelcome;
-            rawContent = rawContent.replace(/{name}/g, name);
+      const isSubscribed = await checkSubscription(bot, chatId, true);
+      if (isSubscribed) {
+        try { await bot.deleteMessage(chatId, query.message.message_id); } catch (e) { }
+        await bot.sendMessage(chatId, C.SUBSCRIPTION_SUCCESS);
 
-            const opts = { parse_mode: "HTML", reply_markup: buildKeyboard("root") };
+        const savedWelcome = db.getSetting("welcome_text");
+        const defaultWelcome = C.WELCOME_TEXT.join("\n");
+        let rawContent = savedWelcome || defaultWelcome;
+        rawContent = rawContent.replace(/{name}/g, name);
+
+        const opts = { parse_mode: "HTML", reply_markup: buildKeyboard("root") };
+
+        try {
+          if (rawContent.startsWith("MEDIA:")) {
+            const media = JSON.parse(rawContent.replace("MEDIA:", ""));
+            if (media.text) opts.caption = media.text;
 
             try {
-                if (rawContent.startsWith("MEDIA:")) {
-                    const media = JSON.parse(rawContent.replace("MEDIA:", ""));
-                    if (media.text) opts.caption = media.text;
-
-                    try {
-                        if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
-                        else if (media.type === "video") await bot.sendVideo(chatId, media.file_id, opts);
-                        else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
-                    } catch(e) {
-                        opts.parse_mode = undefined;
-                        if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
-                        else if (media.type === "video") await bot.sendVideo(chatId, media.file_id, opts);
-                        else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
-                    }
-                } else {
-                    await bot.sendMessage(chatId, rawContent, opts);
-                }
-            } catch (err) {
-                if (!rawContent.startsWith("MEDIA:")) {
-                    opts.parse_mode = undefined;
-                    await bot.sendMessage(chatId, rawContent, opts);
-                }
+              if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
+              else if (media.type === "video") await bot.sendVideo(chatId, media.file_id, opts);
+              else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
+            } catch (e) {
+              opts.parse_mode = undefined;
+              if (media.type === "photo") await bot.sendPhoto(chatId, media.file_id, opts);
+              else if (media.type === "video") await bot.sendVideo(chatId, media.file_id, opts);
+              else if (media.type === "document") await bot.sendDocument(chatId, media.file_id, opts);
             }
-        } else {
-            await bot.answerCallbackQuery(query.id, {
-                text: C.SUBSCRIPTION_FAIL,
-                show_alert: true
-            });
+          } else {
+            await bot.sendMessage(chatId, rawContent, opts);
+          }
+        } catch (err) {
+          if (!rawContent.startsWith("MEDIA:")) {
+            opts.parse_mode = undefined;
+            await bot.sendMessage(chatId, rawContent, opts);
+          }
         }
-        return;
+      } else {
+        await bot.answerCallbackQuery(query.id, {
+          text: C.SUBSCRIPTION_FAIL,
+          show_alert: true
+        });
+      }
+      return;
     }
 
     const isSubscribed = await checkSubscription(bot, chatId);
     if (!isSubscribed) {
-        await bot.answerCallbackQuery(query.id, { text: "Majburiy obunadan o'ting", show_alert: true });
-        return;
+      await bot.answerCallbackQuery(query.id, { text: "Majburiy obunadan o'ting", show_alert: true });
+      return;
     }
 
     await bot.answerCallbackQuery(query.id);

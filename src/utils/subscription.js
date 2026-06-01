@@ -6,7 +6,7 @@ const C = require("../config/content");
 
 const subCache = new Set();
 
-async function checkSubscription(bot, userId) {
+async function checkSubscription(bot, userId, isConfirming = false) {
     if (subCache.has(userId)) return true;
 
     for (const channel of C.CHANNELS) {
@@ -19,7 +19,12 @@ async function checkSubscription(bot, userId) {
             } catch (error) {
                 console.error(`Subscription check error for ${channel.id}:`, error.message);
                 // Agar botni kanalga admin qilinmagan bo'lsa (400 xatolik borsa),
-                // false qaytadi va obuna oynasi chiqadi. Hamma uchun to'sib qo'yadi!
+                if (error.message.includes('400')) {
+                    if (isConfirming) {
+                        subCache.add(userId);
+                        return true;
+                    }
+                }
                 return false;
             }
         }
