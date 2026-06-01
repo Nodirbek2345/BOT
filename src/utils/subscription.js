@@ -5,15 +5,24 @@
 const C = require("../config/content");
 
 const subCache = new Set();
+const failCache = new Map(); // Anti-spam uchun
 
 async function checkSubscription(bot, userId, isConfirming = false) {
     if (subCache.has(userId)) return true;
+
+    // Agar oxirgi 10 soniyada tekshirilgan va obuna bo'lmagan bo'lsa, API ga so'rov yubormaslik (tepadan tezkor false qaytarish)
+    if (!isConfirming && failCache.has(userId)) {
+        if (Date.now() - failCache.get(userId) < 10000) {
+            return false;
+        }
+    }
 
     for (const channel of C.CHANNELS) {
         if (channel.type === 'telegram') {
             try {
                 const member = await bot.getChatMember(channel.id, userId);
                 if (member.status === 'left' || member.status === 'kicked') {
+                    failCache.set(userId, Date.now());
                     return false;
                 }
             } catch (error) {
@@ -25,6 +34,7 @@ async function checkSubscription(bot, userId, isConfirming = false) {
                         return true;
                     }
                 }
+                failCache.set(userId, Date.now());
                 return false;
             }
         }
